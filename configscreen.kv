@@ -1,0 +1,76 @@
+#:kivy 1.10.0
+
+<ConfigScreen>:
+	name: 'config_screen'
+	ActionBar:
+		top: root.height
+		ActionView:
+			use_separator: True
+			ActionPrevious:
+				title: 'ImageMix'
+				on_release: root.parent.current = 'output_screen'
+	RelativeLayout:
+		size_hint: (.9, .9)
+		pos_hint: {'right': .9, 'top': .95}
+		RelativeLayout:
+			size_hint: (.9, .9)
+			pos_hint: {'x' : .1, 'top' : 1}
+			GridLayout:
+				cols: 2
+				padding: 50
+				BoxLayout:
+					orientation: 'vertical'
+					Label:
+						text: 'Width (in pixels)'
+					Label:
+						text: 'Height (in pixels)'
+					Label:
+						text: 'Use Meta Image'
+					Label:
+						text: 'Save Meta Iamge'
+					Label:
+						text: 'Use L-BFGS (Faster results)'
+					Label:
+						text: 'Iterations per Image'
+					Label:
+						text: 'Noise Ratio (if not using Meta Image))'
+					Label:
+						text: 'Alpha'
+					Label:
+						text: 'Beta'
+				BoxLayout:
+					orientation: 'vertical'
+					TextInput:
+						id: _width
+						text: '800'
+					TextInput:
+						id: _height
+						text: '600'
+					CheckBox:
+						id: _use_meta
+						active: False
+					CheckBox:
+						id: _save_meta
+						active: False
+					CheckBox:
+						id: _use_lbfgs
+						active: True
+					TextInput:
+						id: _max_iterations
+						text: '10'
+					TextInput:
+						id: _noise_ratio
+						text: '0.4'
+					TextInput:
+						id: _alpha
+						text: '5'
+					TextInput:
+						id: _beta
+						text: '100'
+	RelativeLayout:
+		size_hint: (.2, .1)
+		pos_hint: {'x': .40, 'y': .07}
+		Button:
+			text: 'Start'
+			on_press: root.parent.current = 'output_screen'; root.parent.start_button(_width.text, _height.text, _use_meta.active, _save_meta.active, _use_lbfgs.active, _max_iterations.text, _noise_ratio.text, _alpha.text, _beta.text); 
+

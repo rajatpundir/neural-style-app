@@ -1,3 +1,15 @@
+#Project specific
+in/
+out/
+meta/
+model/
+notebooks/
+*.png
+*.jpg
+*.mat
+*h5
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

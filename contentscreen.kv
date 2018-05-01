@@ -1,0 +1,42 @@
+#:kivy 1.10.0
+
+<ContentScreen>:
+	name: 'content_screen'
+	header: _header
+	filechooser: _filechooser
+	next_button: _next_button
+	ActionBar:
+		top: root.height
+		ActionView:
+			use_separator: True
+			ActionPrevious:
+				title: 'ImageMix'
+				on_release: root.parent.current = 'output_screen'
+	RelativeLayout:
+		size_hint: (.9, .9)
+		pos_hint: {'x' : .1, 'top' : .90}
+		RelativeLayout:
+			size_hint: (.9, .9)
+			pos_hint: {'x' : 0, 'top' : 1}
+			RelativeLayout:
+				size_hint: (1, .1)
+				pos_hint: {'x' : 0, 'top' : 1}
+				Label:
+					id: _header
+					text: 'Choose Content Image:'
+			RelativeLayout:
+				size_hint: (1, .8)
+				pos_hint: {'x' : 0, 'top' : .92}
+				FileChooserListView:
+					id: _filechooser
+					path: './'
+			RelativeLayout:
+				size_hint: (1, .1)
+				pos_hint: {'x' : 0, 'top' : .1}
+				RelativeLayout:
+					size_hint: (.2, 1)
+					pos_hint: {'x' : 0.8, 'top' : .8}
+				    Button:
+				    	id: _next_button
+				        text: 'Load'
+				        on_press: root.parent.current = 'output_screen'; root.parent.set_image(_filechooser.selection, 'content')

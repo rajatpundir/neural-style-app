@@ -1,0 +1,110 @@
+#:kivy 1.10.0
+#:import random random
+
+<RandomColorButton@Button>:
+	background_color: random.random(), random.random(), random.random(), 0.9
+
+<OutputScreen>:
+	id: _output_screen
+	name: 'output_screen'
+	content: _content
+	style: _style
+    output: _output
+    logs: _logs
+    train_button: _train_button
+    clear_button: _clear_button
+	RelativeLayout:
+		canvas.before:
+			Color:
+				rgba: 1, 1, 1, 1
+			Rectangle:
+				pos: self.x, self.y
+				size: self.width, self.height
+	    canvas.after:
+	    	Line:
+	            rectangle: self.x, self.y, self.width, self.height
+	            width: 5
+	    RelativeLayout:
+	        size_hint: (.4, 1)
+	        pos_hint: {'x' : 0, 'top' : 1}
+	        RelativeLayout:
+	            canvas.after:
+	            	Line:
+	                    rectangle: self.x, self.y, self.width, self.height
+	                    width: 4
+	            size_hint: (1, .5)
+	            pos_hint: {'x' : 0, 'top' : 1}
+	            ContentImage:
+	                id: _content
+	                output_screen: _output_screen
+	        RelativeLayout:
+	            canvas.after:
+	            	Line:
+	                    rectangle: self.x, self.y+_content.height, self.width, self.height
+	                    width: 2
+	            size_hint: (1, .5)
+	            pos_hint: {'x' : 0, 'y' : 0}
+	            StyleImage:
+	                id: _style
+	                output_screen: _output_screen
+	    RelativeLayout:
+	        size_hint: (.6, 1)
+	        pos_hint:  {'right' : 1, 'top' : 1}
+	        RelativeLayout:
+	            canvas.after:
+	            	Line:
+	                    rectangle: self.x+2, self.y++2, self.width, self.height
+	                    width: 2
+	            size_hint: (1, .6)
+	            pos_hint: {'x' : 0, 'top' : 1}
+	            OutputImage:
+	                id: _output
+	                output_screen: _output_screen
+	        RelativeLayout:
+	            canvas.after:
+	            	Line:
+	                    rectangle: self.x+2, self.y+2, self.width, self.height
+	                    width: 2
+	            size_hint: (1, .4)
+	            pos_hint: {'x' : 0, 'y' : 0}
+	            RelativeLayout:
+	            	size_hint: (1, .9)
+	            	pos_hint: {'x' : 0, 'top' : 1}
+		            GridLayout:
+		                rows: 3
+		                BoxLayout:
+		                    orientation: 'horizontal'
+		                    RandomColorButton:
+		                    	id: _train_button
+		                    	text: 'Train'
+		                    RandomColorButton:
+		                        text: 'Backward'
+		                        on_press: root.parent.cycle_image('output_backward')
+		                    RandomColorButton:
+		                        text: 'Forward'
+		                        on_press: root.parent.cycle_image('output_forward')
+		                BoxLayout:
+		                	orientation: 'horizontal'
+		                    RandomColorButton:
+		                    	id: _clear_button
+		                    	text: 'Clear'
+		                    	on_press: root.parent.clear()
+							RandomColorButton:
+		                        text: 'Load Content'
+		                        on_press: root.parent.current = 'content_screen'
+		                    RandomColorButton:
+		                        text: 'Load Style'
+		                        on_press: root.parent.current = 'style_screen'
+		        RelativeLayout:
+			        canvas.after:
+		            	Line:
+		                    rectangle: self.x+2, self.y+2, self.width, self.height
+		                    width: 1
+			        size_hint: (1, .1)
+			        pos_hint: {'x' : 0, 'y' : 0}
+		        	Label:
+		        		id: _logs
+		        		italic: True
+		        		outline_color: (.3, .3, .3)
+		        		outline_width: 2
+
