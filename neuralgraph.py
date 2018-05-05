@@ -4,10 +4,10 @@ import scipy.misc
 import tensorflow as tf
 
 
-class ComputationGraph:
+class NeuralGraph:
     def __init__(self, width=400, height=400):
-        self.image_width = width
-        self.image_height = height
+        self.width = width
+        self.height = height
 
     def get_weights(self, model_matrix, c):
         # Extracting weights for current layer c in the matrix of the model.
@@ -34,28 +34,33 @@ class ComputationGraph:
     def construct_model(self):
         # Function to construct the computation graph of the tensorlfow model.
         try:
-            model_matrix = scipy.io.loadmat('model/model.mat')['layers']
+            model_matrix = scipy.io.loadmat('model/vgg19.model')['layers']
             model = {}
             # Creating input layer with shape of (1, 600, 800, 3), 600 = height, 800 = width, 3 = channels(RGB)
-            model['input']   = tf.Variable(np.zeros((1, self.image_height, self.image_width, 3)), dtype = 'float32')
+            model['input']    = tf.Variable(np.zeros((1, self.height, self.width, 3)), dtype = 'float32')
             # Creating other layers in the computation graph of tensorflow model.
             # Convolution layers are at 0, 2, 5, 7, 10, 12, 14, 16, 19, 21, 23, 25, 28, 30, 32 and 34.
+            # Block 1
             model['conv1_1']  = self.perform_convolution_and_relu(model_matrix, model['input'], 0)
             model['conv1_2']  = self.perform_convolution_and_relu(model_matrix, model['conv1_1'], 2)
             model['avgpool1'] = self.perform_average_pooling(model_matrix, model['conv1_2'])
+            # Block 2
             model['conv2_1']  = self.perform_convolution_and_relu(model_matrix, model['avgpool1'], 5)
             model['conv2_2']  = self.perform_convolution_and_relu(model_matrix, model['conv2_1'], 7)
             model['avgpool2'] = self.perform_average_pooling(model_matrix, model['conv2_2'])
+            # Block 3
             model['conv3_1']  = self.perform_convolution_and_relu(model_matrix, model['avgpool2'], 10)
             model['conv3_2']  = self.perform_convolution_and_relu(model_matrix, model['conv3_1'], 12)
             model['conv3_3']  = self.perform_convolution_and_relu(model_matrix, model['conv3_2'], 14)
             model['conv3_4']  = self.perform_convolution_and_relu(model_matrix, model['conv3_3'], 16)
             model['avgpool3'] = self.perform_average_pooling(model_matrix, model['conv3_4'])
+            # Block 4
             model['conv4_1']  = self.perform_convolution_and_relu(model_matrix, model['avgpool3'], 19)
             model['conv4_2']  = self.perform_convolution_and_relu(model_matrix, model['conv4_1'], 21)
             model['conv4_3']  = self.perform_convolution_and_relu(model_matrix, model['conv4_2'], 23)
             model['conv4_4']  = self.perform_convolution_and_relu(model_matrix, model['conv4_3'], 25)
             model['avgpool4'] = self.perform_average_pooling(model_matrix, model['conv4_4'])
+            # Block 5
             model['conv5_1']  = self.perform_convolution_and_relu(model_matrix, model['avgpool4'], 28)
             model['conv5_2']  = self.perform_convolution_and_relu(model_matrix, model['conv5_1'], 30)
             model['conv5_3']  = self.perform_convolution_and_relu(model_matrix, model['conv5_2'], 32)
@@ -63,16 +68,13 @@ class ComputationGraph:
             model['avgpool5'] = self.perform_average_pooling(model_matrix, model['conv5_4'])
             return(model)
         except:
-            print('Exception: model.mat not found inside meta directory')
+            print('Exception: model not found inside model directory')
             return({})
         
 
     def calulate_loss_over_content(self, sess, model):
-        # Function to calculate loss over content.
-        #     p = sess.run(model['conv4_2'])
-        #     x = model['conv4_2']
-        p = sess.run(model['conv3_2'])
-        x = model['conv3_2']
+        p = sess.run(model['conv2_2'])
+        x = model['conv2_2']
         depth = p.shape[3]
         area = p.shape[1] * p.shape[2]
         # Constant value is not required but can speed up training process a bit.
@@ -101,9 +103,10 @@ class ComputationGraph:
     def calulate_loss_over_style(self, sess, model):
         # Function to calculate loss of style over constructed image.
         # Specifying layers to consider while calculating loss over style
-        layers_to_consider = ['conv1_1', 'conv2_1', 'conv3_1' ,'conv4_1', 'conv5_1']
+        layers_to_consider = ['conv1_2', 'conv2_2', 'conv3_3' ,'conv4_3', 'conv5_3']
         # Specifying weightage of layers while calculating loss over style
-        weightage_for_layer = [0.5, 1.0, 1.5, 3.0, 4.0]
+        # weightage_for_layer = [0.5, 1.0, 1.5, 3.0, 4.0]
+        weightage_for_layer = [0.2, 0.2, 0.2, 0.2, 0.2]
         # Calculating loss over each layer in the list layers_to_consider
         loss_over_layer = []
         for layer in layers_to_consider:
@@ -111,5 +114,13 @@ class ComputationGraph:
         # Calculating final loss over style with losses of layers multiplied with their weightage
         loss_over_style = 0
         for i in range(len(layers_to_consider)):
-                loss_over_style += weightage_for_layer[i] * loss_over_layer[i]
+                # loss_over_style += (weightage_for_layer[i]) * loss_over_layer[i]
+                loss_over_style += (0.025 / len(layers_to_consider)) * loss_over_layer[i]
         return(loss_over_style)
+
+    def calculate_total_variation_loss(self, sess, model):
+        x = sess.run(model['input'])
+        a = tf.pow((x[:, :self.height-1, :self.width-1, :] - x[:, 1:, :self.width-1, :]), 2)
+        b = tf.pow((x[:, :self.height-1, :self.width-1, :] - x[:, :self.height-1, 1:, :]), 2)
+        return(tf.reduce_sum(tf.pow(a + b, 1.25)))
+

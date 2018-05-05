@@ -38,14 +38,16 @@
 						text: 'Alpha'
 					Label:
 						text: 'Beta'
+					Label:
+						text: 'Gamma'
 				BoxLayout:
 					orientation: 'vertical'
 					TextInput:
 						id: _width
-						text: '800'
+						text: '224'
 					TextInput:
 						id: _height
-						text: '600'
+						text: '224'
 					CheckBox:
 						id: _use_meta
 						active: False
@@ -63,14 +65,17 @@
 						text: '0.4'
 					TextInput:
 						id: _alpha
-						text: '5'
+						text: '0.025'
 					TextInput:
 						id: _beta
-						text: '100'
+						text: '5.0'
+					TextInput:
+						id: _gamma
+						text: '1.0'
 	RelativeLayout:
 		size_hint: (.2, .1)
 		pos_hint: {'x': .40, 'y': .07}
 		Button:
 			text: 'Start'
-			on_press: root.parent.current = 'output_screen'; root.parent.start_button(_width.text, _height.text, _use_meta.active, _save_meta.active, _use_lbfgs.active, _max_iterations.text, _noise_ratio.text, _alpha.text, _beta.text); 
+			on_press: root.parent.current = 'output_screen'; root.parent.start_button(_width.text, _height.text, _use_meta.active, _save_meta.active, _use_lbfgs.active, _max_iterations.text, _noise_ratio.text, _alpha.text, _beta.text, _gamma.text); 
 

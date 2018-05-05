@@ -2,12 +2,10 @@
 in/
 out/
 meta/
-model/
 notebooks/
 *.png
 *.jpg
-*.mat
-*h5
+*.model
 
 
 # Byte-compiled / optimized / DLL files

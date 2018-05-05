@@ -6,7 +6,9 @@ from configscreen import ConfigScreen
 from contentscreen import ContentScreen
 from stylescreen import StyleScreen
 from kivyqueue import KivyQueue
-from neuralworker import NeuralWorker 
+from neuralworker import NeuralWorker
+from deepworker import DeepWorker
+from fastworker import FastWorker
 
 from functools import partial
 import threading
@@ -203,10 +205,10 @@ class ImageMixController(ScreenManager):
         event()
 
 
-    def train_worker(self, width, height, use_meta, save_meta, use_lbfgs, max_iterations, noise_ratio, alpha, beta):
+    def train_worker(self, width, height, use_meta, save_meta, use_lbfgs, max_iterations, noise_ratio, alpha, beta, gamma):
         # Threads share data.
-        neural_worker = NeuralWorker(self.result_queue, self.command_queue, self.response_queue, self.content_path_list, self.style_path_list, width, height, use_meta, save_meta, use_lbfgs, max_iterations, noise_ratio, alpha, beta)
-        neural_worker.train()
+        worker = FastWorker(self.result_queue, self.command_queue, self.response_queue, self.content_path_list, self.style_path_list, width, height, use_meta, save_meta, use_lbfgs, max_iterations, noise_ratio, alpha, beta, gamma)
+        worker.train()
 
 
     def pause_or_resume_button(self, *args):
@@ -230,7 +232,7 @@ class ImageMixController(ScreenManager):
         self.current = 'config_screen' 
 
 
-    def start_button(self, width, height, use_meta, save_meta, use_lbfgs, max_iterations, noise_ratio, alpha, beta):
+    def start_button(self, width, height, use_meta, save_meta, use_lbfgs, max_iterations, noise_ratio, alpha, beta, gamma):
         try:
             width = int(width)
             height = int(height)
@@ -239,12 +241,13 @@ class ImageMixController(ScreenManager):
             use_lbfgs = bool(use_lbfgs)
             max_iterations = int(max_iterations)
             noise_ratio = float(noise_ratio)
-            alpha = int(alpha)
-            beta = int(beta)
+            alpha = float(alpha)
+            beta = float(beta)
+            gamma = float(gamma)
             if self.worker is None:
                 if len(self.content_path_list) == 0 or len(self.style_path_list) == 0:
                     return
-                self.worker = threading.Thread(target = self.train_worker, args=(width, height, use_meta, save_meta, use_lbfgs, max_iterations, noise_ratio, alpha, beta))
+                self.worker = threading.Thread(target = self.train_worker, args=(width, height, use_meta, save_meta, use_lbfgs, max_iterations, noise_ratio, alpha, beta, gamma))
                 self.worker.daemon = True
                 self.worker.start()
                 self.state = 'resumed'

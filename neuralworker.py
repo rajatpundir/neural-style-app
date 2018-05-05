@@ -1,4 +1,4 @@
-from computationgraph import ComputationGraph
+from neuralgraph import NeuralGraph
 import numpy as np
 import scipy.io
 import scipy.misc
@@ -6,8 +6,8 @@ import tensorflow as tf
 import time
 
 
-class NeuralWorker():
-    def __init__(self, result_queue, command_queue, response_queue, content_path_list, style_path_list, width=800, height=600, use_meta=False, save_meta=False, use_lbfgs=True, max_iterations=10, noise_ratio=0.4, alpha=5, beta=100):
+class NeuralWorker:
+    def __init__(self, result_queue, command_queue, response_queue, content_path_list, style_path_list, width=800, height=600, use_meta=False, save_meta=False, use_lbfgs=True, max_iterations=10, noise_ratio=0.4, alpha=50, beta=100, gamma=10):
         # for intialization
         self.result_queue = result_queue
         self.command_queue = command_queue
@@ -23,6 +23,7 @@ class NeuralWorker():
         self.noise_ratio = noise_ratio
         self.alpha = alpha
         self.beta = beta
+        self.gamma = gamma
         # some constants
         self.mean_of_images = np.array([123.68, 116.779, 103.939]).reshape((1,1,1,3))
         self.batch_size = 1
@@ -42,8 +43,9 @@ class NeuralWorker():
 
     def initialize_session_and_model(self):
         self.sess = tf.InteractiveSession()
-        self.computation_graph = ComputationGraph(self.width, self.height)
+        self.computation_graph = NeuralGraph(self.width, self.height)
         self.model = self.computation_graph.construct_model()
+        print(self.model)
 
 
     def prepare_content_list_from_content_source_list(self):
@@ -113,7 +115,10 @@ class NeuralWorker():
             else:
                 loss_over_style += temp_loss_over_style
         #########
-        loss_final = self.alpha * loss_over_content + self.beta * loss_over_style
+        self.sess.run(self.model['input'].assign(self.input_to_model))
+        loss_variational = 1.0 * self.computation_graph.calculate_total_variation_loss(self.sess, self.model)
+        #########
+        loss_final = self.alpha * loss_over_content + self.beta * loss_over_style + self.gamma * loss_variational
         self.sess.run(tf.global_variables_initializer())
         self.sess.run(self.model['input'].assign(self.input_to_model))
         self.construct_output_image()
