@@ -1,13 +1,12 @@
 from fastgraph import FastGraph
-import tensorflow as tf
-import numpy as np
-from scipy.misc import imread, imresize, imsave
-from scipy.io import loadmat
 import time
+import numpy as np
+import tensorflow as tf
+from PIL import Image
 
 
 class FastWorker:
-    def __init__(self, result_queue, command_queue, response_queue, content_path_list, style_path_list, width=224, height=224, use_meta=False, save_meta=False, use_lbfgs=True, max_iterations=10, noise_ratio=0.4, alpha=0.025, beta=5.0, gamma=1.0):
+    def __init__(self, result_queue, command_queue, response_queue, content_path_list, style_path_list, width=512, height=512, use_meta=True, save_meta=True, use_lbfgs=True, max_iterations=20, noise_ratio=0.2, alpha=1000, beta=100, gamma=20):
         # for intialization
         self.result_queue = result_queue
         self.command_queue = command_queue
@@ -55,13 +54,13 @@ class FastWorker:
 
     def prepare_mix_image(self):
         if not self.use_meta:
-            noise = np.random.uniform(-20, 20, (1, self.height, self.width, 3)).astype('float32')
+            noise = np.random.uniform(0, 255, (1, self.height, self.width, 3)) - 128.0
             self.mix_image = noise * self.noise_ratio
             for content in self.content_list:
                 self.mix_image += content * ((1 - self.noise_ratio) / len(self.content_list))
         else:
             try:
-                self.mix_image = model.preprocess('meta/meta.png')
+                self.mix_image = self.model.preprocess('meta/meta.png')
             except:
                 self.use_meta = False
                 self.prepare_mix_image()
@@ -70,9 +69,13 @@ class FastWorker:
     def save_mix_image(self):
         self.response_queue.put('Constructing image %d...' % self.image_counter)
         mix_image = self.model.sess.run(self.model.inputs)
-        imsave('out/%d.png' % self.image_counter, np.clip((mix_image + np.array([123.68, 116.779, 103.939]).reshape((1,1,1,3)))[0], 0, 255).astype('uint8'))
+        mix_image = mix_image.reshape((self.height, self.width, 3))
+        mix_image = mix_image[:, :, ::-1]
+        mix_image += self.model.mean
+        mix_image = np.clip(mix_image, 0, 255).astype('uint8')
+        Image.fromarray(mix_image).save('out/%d.png' % self.image_counter,'PNG')
         if self.save_meta:
-            imsave('meta/meta.png', np.clip((mix_image + np.array([123.68, 116.779, 103.939]).reshape((1,1,1,3)))[0], 0, 255).astype('uint8'))
+            Image.fromarray(mix_image).save('meta/meta.png','PNG')
         self.result_queue.put('out/%d.png' % self.image_counter)
         self.image_counter += 1
 
@@ -89,9 +92,11 @@ class FastWorker:
             self.model.sess.run(self.model.inputs.assign(style))
             total_style_loss += self.model.style_loss()
         #########
+        total_variation_loss = 0
+        total_variation_loss = self.model.variation_loss()
         self.model.sess.run(self.model.inputs.assign(self.mix_image))
         #########
-        final_loss = self.alpha * total_content_loss + self.beta * total_style_loss
+        final_loss = total_content_loss + total_style_loss + total_variation_loss
         self.model.sess.run(tf.global_variables_initializer())
         self.model.sess.run(self.model.inputs.assign(self.mix_image))
         self.save_mix_image()
@@ -123,7 +128,7 @@ class FastWorker:
                             elif command is 'stop':
                                 stopped = True
                                 break
-                        time.sleep(.5)
+                        time.sleep(.2)
                 elif command is 'stop':
                     stopped = True
                     break

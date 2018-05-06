@@ -44,34 +44,34 @@
 					orientation: 'vertical'
 					TextInput:
 						id: _width
-						text: '224'
+						text: '512'
 					TextInput:
 						id: _height
-						text: '224'
+						text: '512'
 					CheckBox:
 						id: _use_meta
-						active: False
+						active: True
 					CheckBox:
 						id: _save_meta
-						active: False
+						active: True
 					CheckBox:
 						id: _use_lbfgs
 						active: True
 					TextInput:
 						id: _max_iterations
-						text: '10'
+						text: '20'
 					TextInput:
 						id: _noise_ratio
-						text: '0.4'
+						text: '0.2'
 					TextInput:
 						id: _alpha
-						text: '0.025'
+						text: '1000'
 					TextInput:
 						id: _beta
-						text: '5.0'
+						text: '100'
 					TextInput:
 						id: _gamma
-						text: '1.0'
+						text: '20'
 	RelativeLayout:
 		size_hint: (.2, .1)
 		pos_hint: {'x': .40, 'y': .07}

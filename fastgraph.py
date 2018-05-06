@@ -1,7 +1,7 @@
-import tensorflow as tf
 import numpy as np
-from scipy.misc import imread, imresize, imsave
+import tensorflow as tf
 from scipy.io import loadmat
+from PIL import Image
 
 class FastGraph:
     def __init__(self, width, height, alpha, beta, gamma):
@@ -11,7 +11,7 @@ class FastGraph:
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
-        self.mean = np.array([123.68, 116.779, 103.939]).reshape((1,1,1,3))
+        self.mean = np.array([123.68, 116.779, 103.939])
         self.batch_size = 1
         self.channels = 3
         self.load_model()
@@ -58,45 +58,86 @@ class FastGraph:
         self.avgpool5 = tf.nn.avg_pool(self.conv5_4, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
         
     def content_loss(self):
-        c_mix = self.sess.run(self.conv2_2)
-        c_cont = self.conv2_2
-        const = 4 * c_mix.shape[3] * c_mix.shape[2] * c_mix.shape[1]
-        return(tf.reduce_sum(tf.pow(c_mix - c_cont, 2)) / const)
+        c_cont = self.sess.run(self.conv1_1)
+        c_mix = self.conv1_1
+        const = 4 * c_cont.shape[3] * c_cont.shape[2] * c_cont.shape[1]
+        return(self.alpha * tf.reduce_sum(tf.pow(c_mix - c_cont, 2)) / const)
 
     def gram_matrix(self, volume, area, depth):
         V = tf.reshape(volume, (area, depth))
         return(tf.matmul(tf.transpose(V), V))
 
     def style_loss_over_layer(self, layer):
-        s_mix = self.sess.run(self.get_layer(layer))
-        s_styl = self.get_layer(layer)
-        area, depth = s_mix.shape[1] * s_mix.shape[2], s_mix.shape[3]
+        s_styl = self.sess.run(self.get_layer(layer))
+        s_mix = self.get_layer(layer)
+        area, depth = s_styl.shape[1] * s_styl.shape[2], s_styl.shape[3]
         const = 4 * depth**2 * area**2
         return(tf.reduce_sum(tf.pow(self.gram_matrix(s_mix, area, depth) - self.gram_matrix(s_styl, area, depth), 2)) / const)
 
     def style_loss(self):
-        layers = ['conv1_2', 'conv2_2', 'conv3_3' ,'conv4_3', 'conv5_3']
+        layers = ['conv1_2', 'conv2_2', 'conv3_4' ,'conv4_4', 'conv5_4']
         loss_in_style = 0
         for layer in layers:
             loss_in_style += (self.beta / len(layers)) * self.style_loss_over_layer(layer)
-        return(loss_in_style)
+        return(self.beta * loss_in_style)
+
+    def variation_loss(self):
+        x = self.inputs
+        a = tf.pow((x[:, :self.height-1, :self.width-1, :] - x[:, 1:, :self.width-1, :]), 2)
+        b = tf.pow((x[:, :self.height-1, :self.width-1, :] - x[:, :self.height-1, 1:, :]), 2)
+        return(self.gamma * tf.reduce_sum(tf.pow(a + b, 1.25)))
 
     def get_layer(self, layer):
+        # Make it a dictionary
         if layer is 'input':
             return self.inputs
+        elif layer is 'conv1_1':
+            return self.conv1_1
         elif layer is 'conv1_2':
             return self.conv1_2
+        elif layer is 'avgpool1':
+            return self.avgpool1
+        elif layer is 'conv2_1':
+            return self.conv2_1
         elif layer is 'conv2_2':
             return self.conv2_2
+        elif layer is 'avgpool2':
+            return self.avgpool2
+        elif layer is 'conv3_1':
+            return self.conv3_1
+        elif layer is 'conv3_2':
+            return self.conv3_2
         elif layer is 'conv3_3':
             return self.conv3_3
+        elif layer is 'conv3_4':
+            return self.conv3_4
+        elif layer is 'avgpool3':
+            return self.avgpool3
+        elif layer is 'conv4_1':
+            return self.conv4_1
+        elif layer is 'conv4_2':
+            return self.conv4_2
         elif layer is 'conv4_3':
             return self.conv4_3
+        elif layer is 'conv4_4':
+            return self.conv4_4
+        elif layer is 'avgpool4':
+            return self.avgpool4
+        elif layer is 'conv5_1':
+            return self.conv5_1
+        elif layer is 'conv5_2':
+            return self.conv5_2
         elif layer is 'conv5_3':
             return self.conv5_3
+        elif layer is 'conv5_4':
+            return self.conv5_4
+        elif layer is 'avgpool5':
+            return self.avgpool5
 
     def preprocess(self, path):
-        temp = imresize(imread(path), (self.height, self.width))
-        temp = np.reshape(temp, (self.batch_size, self.height, self.width, self.channels))
-        return(temp - self.mean)
+        temp = Image.open(path).resize((self.width, self.height))
+        temp = np.asarray(temp, dtype='float32')
+        temp -= self.mean
+        temp = np.expand_dims(temp, axis=0)
+        return(temp[:, :, :, ::-1])
 
