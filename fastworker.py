@@ -1,4 +1,5 @@
 from fastgraph import FastGraph
+from fastergraph import FasterGraph
 import time
 import numpy as np
 import tensorflow as tf
@@ -6,7 +7,7 @@ from PIL import Image
 
 
 class FastWorker:
-    def __init__(self, result_queue, command_queue, response_queue, content_path_list, style_path_list, width=512, height=512, use_meta=True, save_meta=True, use_lbfgs=True, max_iterations=20, noise_ratio=0.2, alpha=1000, beta=100, gamma=20):
+    def __init__(self, result_queue, command_queue, response_queue, content_path_list, style_path_list, width, height, use_meta, save_meta, use_lbfgs, max_iterations, noise_ratio, alpha, beta, gamma):
         # for intialization
         self.result_queue = result_queue
         self.command_queue = command_queue
@@ -35,7 +36,7 @@ class FastWorker:
 
 
     def intialize_fast_worker(self):
-        self.model = FastGraph(self.width, self.height, self.alpha, self.beta, self.gamma)
+        self.model = FasterGraph(self.width, self.height, self.alpha, self.beta, self.gamma)
         self.prepare_content_list()
         self.prepare_style_list()
         self.prepare_mix_image()
@@ -69,7 +70,7 @@ class FastWorker:
     def save_mix_image(self):
         self.response_queue.put('Constructing image %d...' % self.image_counter)
         mix_image = self.model.sess.run(self.model.inputs)
-        mix_image = mix_image.reshape((self.height, self.width, 3))
+        mix_image = mix_image.reshape((self.model.height, self.model.width, 3))
         mix_image = mix_image[:, :, ::-1]
         mix_image += self.model.mean
         mix_image = np.clip(mix_image, 0, 255).astype('uint8')
@@ -81,8 +82,8 @@ class FastWorker:
 
 
     def prepare_session(self):
-        total_content_loss = 0
         self.model.sess.run(tf.global_variables_initializer())
+        total_content_loss = 0
         for content in self.content_list:
             self.model.sess.run(self.model.inputs.assign(content))
             total_content_loss += self.model.content_loss()

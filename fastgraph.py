@@ -5,31 +5,27 @@ from PIL import Image
 
 class FastGraph:
     def __init__(self, width, height, alpha, beta, gamma):
-        self.sess = tf.InteractiveSession()
         self.width = width
         self.height = height
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
-        self.mean = np.array([123.68, 116.779, 103.939])
-        self.batch_size = 1
-        self.channels = 3
-        self.load_model()
-
-    def get_weights(self, parameters, layer):
-        return(parameters[0][layer][0][0][0][0][0])
-
-    def get_bias(self, parameters, layer):
-        return(parameters[0][layer][0][0][0][0][1])
+        self.content_layer = ['conv1_1']
+        self.style_layers = ['conv1_2', 'conv2_2', 'conv3_4' ,'conv4_4', 'conv5_4']
+        self.initialize_model()
 
     def conv2d_relu(self, parameters, previous_layer, current_layer):
-        weights = tf.constant(self.get_weights(parameters, current_layer))
-        bias = tf.constant(np.reshape(self.get_bias(parameters, current_layer), (self.get_bias(parameters, current_layer).size)))
+        weights = tf.constant(parameters[0][current_layer][0][0][0][0][0])
+        bias = tf.constant(np.reshape(parameters[0][current_layer][0][0][0][0][1], (parameters[0][current_layer][0][0][0][0][1]).size))
         return(tf.nn.relu(tf.nn.conv2d(previous_layer, filter=weights, strides=[1, 1, 1, 1], padding='SAME') + bias))
 
-    def load_model(self):
-        parameters = loadmat('model/vgg19.model')['layers']
+    def initialize_model(self):
+        self.sess = tf.InteractiveSession()
+        self.batch_size = 1
+        self.channels = 3
         self.inputs = tf.Variable(np.zeros((self.batch_size, self.height, self.width, self.channels)), dtype = 'float32')
+        self.mean = np.array([123.68, 116.779, 103.939])
+        parameters = loadmat('model/vgg19.model')['layers']
         # Block 1
         self.conv1_1 = self.conv2d_relu(parameters, self.inputs, 0)
         self.conv1_2 = self.conv2d_relu(parameters, self.conv1_1, 2)
@@ -58,8 +54,8 @@ class FastGraph:
         self.avgpool5 = tf.nn.avg_pool(self.conv5_4, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
         
     def content_loss(self):
-        c_cont = self.sess.run(self.conv1_1)
-        c_mix = self.conv1_1
+        c_cont = self.sess.run(self.get_layer(self.content_layer[0]))
+        c_mix = self.get_layer(self.content_layer[0])
         const = 4 * c_cont.shape[3] * c_cont.shape[2] * c_cont.shape[1]
         return(self.alpha * tf.reduce_sum(tf.pow(c_mix - c_cont, 2)) / const)
 
@@ -75,10 +71,9 @@ class FastGraph:
         return(tf.reduce_sum(tf.pow(self.gram_matrix(s_mix, area, depth) - self.gram_matrix(s_styl, area, depth), 2)) / const)
 
     def style_loss(self):
-        layers = ['conv1_2', 'conv2_2', 'conv3_4' ,'conv4_4', 'conv5_4']
         loss_in_style = 0
-        for layer in layers:
-            loss_in_style += (self.beta / len(layers)) * self.style_loss_over_layer(layer)
+        for layer in self.style_layers:
+            loss_in_style += (self.beta / len(self.style_layers)) * self.style_loss_over_layer(layer)
         return(self.beta * loss_in_style)
 
     def variation_loss(self):
@@ -88,7 +83,7 @@ class FastGraph:
         return(self.gamma * tf.reduce_sum(tf.pow(a + b, 1.25)))
 
     def get_layer(self, layer):
-        # Make it a dictionary
+        # Make it a dictionary, function is bit different for both models.
         if layer is 'input':
             return self.inputs
         elif layer is 'conv1_1':

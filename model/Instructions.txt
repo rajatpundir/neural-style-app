@@ -1,5 +1,6 @@
 Instructions for downloading pre-trained models:
 
-1. Download VGG-19 from 'http://www.vlfeat.org/matconvnet/models/imagenet-vgg-verydeep-19.mat' and place it in 'models' directory as 'vgg19.model'.
+1. Download pre-trained VGG-19 model from 'http://www.vlfeat.org/matconvnet/models/imagenet-vgg-verydeep-19.mat' and place it in 'models' directory as 'vgg19.model'.
 
-2. Download VGG-16 from 'https://www.cs.toronto.edu/~frossard/vgg16/vgg16_weights.npz' and place it in 'models' directory as 'vgg16.model'.
+2. Download pre-trained VGG-16 model from 'https://www.cs.toronto.edu/~frossard/vgg16/vgg16_weights.npz' and place it in 'models' directory as 'vgg16.model'.
+
