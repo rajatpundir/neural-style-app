@@ -1,18 +1,24 @@
 #:kivy 1.10.0
-#: import FadeTransition kivy.uix.screenmanager.FadeTransition
 #: import SlideTransition kivy.uix.screenmanager.SlideTransition
 
 <ImageMixController>:
     transition: SlideTransition()
     output_screen: _output_screen
     config_screen: _config_screen
+    fast_graph_config_screen: _fast_graph_config_screen
+    faster_graph_config_screen: _faster_graph_config_screen
     content_screen: _content_screen
     style_screen: _style_screen
     OutputScreen:
         id: _output_screen
+    FasterGraphConfigScreen:
+        id: _faster_graph_config_screen
+    FastGraphConfigScreen:
+        id: _fast_graph_config_screen
     ConfigScreen:
         id: _config_screen
     ContentScreen:
         id: _content_screen
     StyleScreen:
         id: _style_screen
+

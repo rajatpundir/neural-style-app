@@ -2,6 +2,7 @@
 
 <ConfigScreen>:
 	name: 'config_screen'
+	use_faster_graph: _use_faster_graph
 	ActionBar:
 		top: root.height
 		ActionView:
@@ -10,7 +11,7 @@
 				title: 'ImageMix'
 				on_release: root.parent.current = 'output_screen'
 	RelativeLayout:
-		size_hint: (.9, .9)
+		size_hint: (.9, .95)
 		pos_hint: {'right': .9, 'top': .95}
 		RelativeLayout:
 			size_hint: (.9, .9)
@@ -29,28 +30,30 @@
 					Label:
 						text: 'Save Meta Iamge'
 					Label:
-						text: 'Use L-BFGS (Faster results)'
+						text: 'Use L-BFGS'
 					Label:
 						text: 'Iterations per Image'
 					Label:
-						text: 'Noise Ratio (if not using Meta Image))'
+						text: 'Noise Ratio [0, 1]'
 					Label:
-						text: 'Alpha'
+						text: 'Content Emphasis'
 					Label:
-						text: 'Beta'
+						text: 'Style Emphasis'
 					Label:
-						text: 'Gamma'
+						text: 'Smoothening'
+					Label:
+						text: 'Faster mode'
 				BoxLayout:
 					orientation: 'vertical'
 					TextInput:
 						id: _width
-						text: '512'
+						text: '256'
 					TextInput:
 						id: _height
-						text: '512'
+						text: '256'
 					CheckBox:
 						id: _use_meta
-						active: True
+						active: False
 					CheckBox:
 						id: _save_meta
 						active: True
@@ -62,20 +65,29 @@
 						text: '20'
 					TextInput:
 						id: _noise_ratio
-						text: '0.2'
+						text: '1.0'
 					TextInput:
 						id: _alpha
-						text: '1000'
-					TextInput:
-						id: _beta
 						text: '500'
 					TextInput:
-						id: _gamma
+						id: _beta
 						text: '100'
+					TextInput:
+						id: _gamma
+						text: '10'
+					CheckBox:
+						id: _use_faster_graph
+						active: True
 	RelativeLayout:
 		size_hint: (.2, .1)
-		pos_hint: {'x': .40, 'y': .07}
+		pos_hint: {'x': .22, 'y': .05}
+		Button:
+			text: 'Configure'
+			on_press: root.parent.set_config_screen()
+	RelativeLayout:
+		size_hint: (.2, .1)
+		pos_hint: {'x': .57, 'y': .05}
 		Button:
 			text: 'Start'
-			on_press: root.parent.current = 'output_screen'; root.parent.start_button(_width.text, _height.text, _use_meta.active, _save_meta.active, _use_lbfgs.active, _max_iterations.text, _noise_ratio.text, _alpha.text, _beta.text, _gamma.text); 
+			on_press: root.parent.current = 'output_screen'; root.parent.start_button(_width.text, _height.text, _use_meta.active, _save_meta.active, _use_lbfgs.active, _max_iterations.text, _noise_ratio.text, _alpha.text, _beta.text, _gamma.text, _use_faster_graph.active);
 

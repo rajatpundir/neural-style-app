@@ -1,26 +1,16 @@
+from basegraph import BaseGraph
 import numpy as np
 import tensorflow as tf
-from scipy.io import loadmat
 from PIL import Image
 
-class FasterGraph:
-    def __init__(self, width, height, alpha, beta, gamma):
-        self.width = width
-        self.height = height
-        self.alpha = alpha
-        self.beta = beta
-        self.gamma = gamma
-        self.content_layer = ['conv2_2']
-        self.style_layers = ['conv1_2', 'conv2_2', 'conv3_3' ,'conv4_3', 'conv5_3']
+class FasterGraph(BaseGraph):
+    def __init__(self, content_images_list, style_images_list, width, height, alpha, beta, gamma, noise_ratio, use_meta, save_meta):
+        super().__init__(content_images_list, style_images_list, width, height, alpha, beta, gamma, noise_ratio, use_meta, save_meta)
         self.initialize_model()
+        self.define_final_loss()
 
     def initialize_model(self):
-        self.sess = tf.Session()
-        self.batch_size = 1
-        self.channels = 3
-        self.inputs = tf.Variable(np.zeros((self.batch_size, self.height, self.width, self.channels)), dtype = 'float32', name='input')
-        self.mean = np.array([123.68, 116.779, 103.939])
-        parameters = np.load('model/vgg16.model')
+        parameters = np.load('model/faster.model')
         keys = sorted(parameters.keys())
         # Block 1
         with tf.name_scope('conv1_1') as scope:
@@ -35,7 +25,7 @@ class FasterGraph:
             biases = tf.constant(parameters[keys[3]], shape=[64], dtype=tf.float32, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.conv1_2 = tf.nn.relu(out, name=scope)
-        self.pool1 = tf.nn.max_pool(self.conv1_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
+        self.pool1 = tf.nn.avg_pool(self.conv1_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
         # Block 2
         with tf.name_scope('conv2_1') as scope:
             kernel = tf.constant(parameters[keys[4]], shape=[3, 3, 64, 128], dtype=tf.float32, name='weights')
@@ -49,7 +39,7 @@ class FasterGraph:
             biases = tf.constant(parameters[keys[7]], shape=[128], dtype=tf.float32, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.conv2_2 = tf.nn.relu(out, name=scope)
-        self.pool2 = tf.nn.max_pool(self.conv2_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
+        self.pool2 = tf.nn.avg_pool(self.conv2_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
         # Block 3
         with tf.name_scope('conv3_1') as scope:
             kernel = tf.constant(parameters[keys[8]], shape=[3, 3, 128, 256], dtype=tf.float32, name='weights')
@@ -69,7 +59,7 @@ class FasterGraph:
             biases = tf.constant(parameters[keys[13]], shape=[256], dtype=tf.float32, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.conv3_3 = tf.nn.relu(out, name=scope)
-        self.pool3 = tf.nn.max_pool(self.conv3_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
+        self.pool3 = tf.nn.avg_pool(self.conv3_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
         # Block 4
         with tf.name_scope('conv4_1') as scope:
             kernel = tf.constant(parameters[keys[14]], shape=[3, 3, 256, 512], dtype=tf.float32, name='weights')
@@ -89,7 +79,7 @@ class FasterGraph:
             biases = tf.constant(parameters[keys[19]], shape=[512], dtype=tf.float32, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.conv4_3 = tf.nn.relu(out, name=scope)
-        self.pool4 = tf.nn.max_pool(self.conv4_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
+        self.pool4 = tf.nn.avg_pool(self.conv4_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
         # Block 5
         with tf.name_scope('conv5_1') as scope:
             kernel = tf.constant(parameters[keys[20]], shape=[3, 3, 512, 512], dtype=tf.float32, name='weights')
@@ -109,105 +99,107 @@ class FasterGraph:
             biases = tf.constant(parameters[keys[25]], shape=[512], dtype=tf.float32, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.conv5_3 = tf.nn.relu(out, name=scope)
-        self.pool5 = tf.nn.max_pool(self.conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
-        if True:
-            return
-        # Block FC
-        with tf.name_scope('fc1') as scope:
-            shape = int(np.prod(self.pool5.get_shape()[1:]))
-            fc1w = tf.constant(parameters[keys[26]], shape=[shape, 4096], dtype=tf.float32, name='weights')
-            fc1b = tf.constant(parameters[keys[27]], shape=[4096], dtype=tf.float32, name='biases')
-            pool5_flat = tf.reshape(self.pool5, [-1, shape])
-            fc1l = tf.nn.bias_add(tf.matmul(pool5_flat, fc1w), fc1b)
-            self.fc1 = tf.nn.relu(fc1l)
-        with tf.name_scope('fc2') as scope:
-            fc2w = tf.constant(parameters[keys[28]], shape=[4096, 4096], dtype=tf.float32, name='weights')
-            fc2b = tf.constant(parameters[keys[29]], shape=[4096], dtype=tf.float32, name='biases')
-            fc2l = tf.nn.bias_add(tf.matmul(self.fc1, fc2w), fc2b)
-            self.fc2 = tf.nn.relu(fc2l)
-        with tf.name_scope('fc3') as scope:
-            fc3w = tf.constant(parameters[keys[30]], shape=[4096, 1000], dtype=tf.float32, name='weights')
-            fc3b = tf.constant(parameters[keys[31]], shape=[1000], dtype=tf.float32, name='biases')
-            self.fc3l = tf.nn.bias_add(tf.matmul(self.fc2, fc3w), fc3b)
+        self.pool5 = tf.nn.avg_pool(self.conv5_3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
+        # Adding layers to layer_func
+        self.layer_func['input'] = self.inputs
+        self.layer_func['conv1_1'] = self.conv1_1
+        self.layer_func['conv1_2'] = self.conv1_2
+        self.layer_func['pool1'] = self.pool1
+        self.layer_func['conv2_1'] = self.conv2_1
+        self.layer_func['conv2_2'] = self.conv2_2
+        self.layer_func['pool2'] = self.pool2
+        self.layer_func['conv3_1'] = self.conv3_1
+        self.layer_func['conv3_2'] = self.conv3_2
+        self.layer_func['conv3_3'] = self.conv3_3
+        self.layer_func['pool3'] = self.pool3
+        self.layer_func['conv4_1'] = self.conv4_1
+        self.layer_func['conv4_2'] = self.conv4_2
+        self.layer_func['conv4_3'] = self.conv4_3
+        self.layer_func['pool4'] = self.pool4
+        self.layer_func['conv5_1'] = self.conv5_1
+        self.layer_func['conv5_2'] = self.conv5_2
+        self.layer_func['conv5_3'] = self.conv5_3
+        self.layer_func['pool5'] = self.pool5
 
-    def content_loss(self):
-        c_cont = self.sess.run(self.get_layer(self.content_layer[0]))
-        c_mix = self.get_layer(self.content_layer[0])
-        const = 4 * c_cont.shape[3] * c_cont.shape[2] * c_cont.shape[1]
-        return(self.alpha * tf.reduce_sum(tf.pow(c_mix - c_cont, 2)) / const)
+    def preprocess_content_layers(self):
+        for content_image in self.content_images_list:
+            cont_layers = []
+            if content_image.content_conv1_1_check:
+                cont_layers.append(('conv1_1', content_image.content_conv1_1_weight))
+            if content_image.content_conv1_2_check:
+                cont_layers.append(('conv1_2', content_image.content_conv1_2_weight))
+            if content_image.content_pool1_check:
+                cont_layers.append(('pool1', content_image.content_pool1_weight))
+            if content_image.content_conv2_1_check:
+                cont_layers.append(('conv2_1', content_image.content_conv2_1_weight))
+            if content_image.content_conv2_2_check:
+                cont_layers.append(('conv2_2', content_image.content_conv2_2_weight))
+            if content_image.content_pool2_check:
+                cont_layers.append(('pool2', content_image.content_pool2_weight))
+            if content_image.content_conv3_1_check:
+                cont_layers.append(('conv3_1', content_image.content_conv3_1_weight))
+            if content_image.content_conv3_2_check:
+                cont_layers.append(('conv3_2', content_image.content_conv3_2_weight))
+            if content_image.content_conv3_3_check:
+                cont_layers.append(('conv3_3', content_image.content_conv3_3_weight))
+            if content_image.content_pool3_check:
+                cont_layers.append(('pool3', content_image.content_pool3_weight))
+            if content_image.content_conv4_1_check:
+                cont_layers.append(('conv4_1', content_image.content_conv4_1_weight))
+            if content_image.content_conv4_2_check:
+                cont_layers.append(('conv4_2', content_image.content_conv4_2_weight))
+            if content_image.content_conv4_3_check:
+                cont_layers.append(('conv4_3', content_image.content_conv4_3_weight))
+            if content_image.content_pool4_check:
+                cont_layers.append(('pool4', content_image.content_pool4_weight))
+            if content_image.content_conv5_1_check:
+                cont_layers.append(('conv5_1', content_image.content_conv5_1_weight))
+            if content_image.content_conv5_2_check:
+                cont_layers.append(('conv5_2', content_image.content_conv5_2_weight))
+            if content_image.content_conv5_3_check:
+                cont_layers.append(('conv5_3', content_image.content_conv5_3_weight))
+            if content_image.content_pool5_check:
+                cont_layers.append(('pool5', content_image.content_pool5_weight))
+            self.content_layers.append(cont_layers)
 
-    def gram_matrix(self, volume, area, depth):
-        V = tf.reshape(volume, (area, depth))
-        return(tf.matmul(tf.transpose(V), V))
-
-    def style_loss_over_layer(self, layer):
-        s_styl = self.sess.run(self.get_layer(layer))
-        s_mix = self.get_layer(layer)
-        area, depth = s_styl.shape[1] * s_styl.shape[2], s_styl.shape[3]
-        const = 4 * depth**2 * area**2
-        return(tf.reduce_sum(tf.pow(self.gram_matrix(s_mix, area, depth) - self.gram_matrix(s_styl, area, depth), 2)) / const)
-
-    def style_loss(self):
-        loss_in_style = 0
-        for layer in self.style_layers:
-            loss_in_style += (self.beta / len(self.style_layers)) * self.style_loss_over_layer(layer)
-        return(self.beta * loss_in_style)
-
-    def variation_loss(self):
-        x = self.inputs
-        a = tf.pow((x[:, :self.height-1, :self.width-1, :] - x[:, 1:, :self.width-1, :]), 2)
-        b = tf.pow((x[:, :self.height-1, :self.width-1, :] - x[:, :self.height-1, 1:, :]), 2)
-        return(self.gamma * tf.reduce_sum(tf.pow(a + b, 1.25)))
-
-    def get_layer(self, layer):
-        # Make it a dictionary, function is bit different for both models.
-        if layer is 'input':
-            return self.inputs
-        elif layer is 'conv1_1':
-            return self.conv1_1
-        elif layer is 'conv1_2':
-            return self.conv1_2
-        elif layer is 'pool1':
-            return self.pool1
-        elif layer is 'conv2_1':
-            return self.conv2_1
-        elif layer is 'conv2_2':
-            return self.conv2_2
-        elif layer is 'pool2':
-            return self.pool2
-        elif layer is 'conv3_1':
-            return self.conv3_1
-        elif layer is 'conv3_2':
-            return self.conv3_2
-        elif layer is 'conv3_3':
-            return self.conv3_3
-        elif layer is 'pool3':
-            return self.pool3
-        elif layer is 'conv4_1':
-            return self.conv4_1
-        elif layer is 'conv4_2':
-            return self.conv4_2
-        elif layer is 'conv4_3':
-            return self.conv4_3
-        elif layer is 'pool4':
-            return self.pool4
-        elif layer is 'conv5_1':
-            return self.conv5_1
-        elif layer is 'conv5_2':
-            return self.conv5_2
-        elif layer is 'conv5_3':
-            return self.conv5_3
-        elif layer is 'pool5':
-            return self.pool5
-
-    def preprocess(self, path):
-        temp = Image.open(path).resize((self.width, self.height))
-        temp = np.asarray(temp, dtype='float32')
-        temp -= self.mean
-        temp = np.expand_dims(temp, axis=0)
-        return(temp[:, :, :, ::-1])
-
-    def predict(self):
-        # preprocess images first.
-        pass
+    def preprocess_style_layers(self):
+        for style_image in self.style_images_list:
+            styl_layers = []
+            if style_image.style_conv1_1_check:
+                styl_layers.append(('conv1_1', style_image.style_conv1_1_weight))
+            if style_image.style_conv1_2_check:
+                styl_layers.append(('conv1_2', style_image.style_conv1_2_weight))
+            if style_image.style_pool1_check:
+                styl_layers.append(('pool1', style_image.style_pool1_weight))
+            if style_image.style_conv2_1_check:
+                styl_layers.append(('conv2_1', style_image.style_conv2_1_weight))
+            if style_image.style_conv2_2_check:
+                styl_layers.append(('conv2_2', style_image.style_conv2_2_weight))
+            if style_image.style_pool2_check:
+                styl_layers.append(('pool2', style_image.style_pool2_weight))
+            if style_image.style_conv3_1_check:
+                styl_layers.append(('conv3_1', style_image.style_conv3_1_weight))
+            if style_image.style_conv3_2_check:
+                styl_layers.append(('conv3_2', style_image.style_conv3_2_weight))
+            if style_image.style_conv3_3_check:
+                styl_layers.append(('conv3_3', style_image.style_conv3_3_weight))
+            if style_image.style_pool3_check:
+                styl_layers.append(('pool3', style_image.style_pool3_weight))
+            if style_image.style_conv4_1_check:
+                styl_layers.append(('conv4_1', style_image.style_conv4_1_weight))
+            if style_image.style_conv4_2_check:
+                styl_layers.append(('conv4_2', style_image.style_conv4_2_weight))
+            if style_image.style_conv4_3_check:
+                styl_layers.append(('conv4_3', style_image.style_conv4_3_weight))
+            if style_image.style_pool4_check:
+                styl_layers.append(('pool4', style_image.style_pool4_weight))
+            if style_image.style_conv5_1_check:
+                styl_layers.append(('conv5_1', style_image.style_conv5_1_weight))
+            if style_image.style_conv5_2_check:
+                styl_layers.append(('conv5_2', style_image.style_conv5_2_weight))
+            if style_image.style_conv5_3_check:
+                styl_layers.append(('conv5_3', style_image.style_conv5_3_weight))
+            if style_image.style_pool5_check:
+                styl_layers.append(('pool5', style_image.style_pool5_weight))
+            self.style_layers.append(styl_layers)
 

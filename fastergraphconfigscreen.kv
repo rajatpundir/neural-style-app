@@ -1,0 +1,469 @@
+#:kivy 1.10.0
+
+<FasterGraphConfigScreen>:
+    name: 'faster_graph_config_screen'
+    content_file: _content_file
+    style_file: _style_file
+    alpha: _alpha
+    beta: _beta
+    content_conv1_1_check: _content_conv1_1_check
+    content_conv1_1_weight: _content_conv1_1_weight
+    content_conv1_2_check: _content_conv1_2_check
+    content_conv1_2_weight: _content_conv1_2_weight
+    content_pool1_check: _content_pool1_check
+    content_pool1_weight: _content_pool1_weight
+    content_conv2_1_check: _content_conv2_1_check
+    content_conv2_1_weight: _content_conv2_1_weight
+    content_conv2_2_check: _content_conv2_2_check
+    content_conv2_2_weight: _content_conv2_2_weight
+    content_pool2_check: _content_pool2_check
+    content_pool2_weight: _content_pool2_weight
+    content_conv3_1_check: _content_conv3_1_check
+    content_conv3_1_weight: _content_conv3_1_weight
+    content_conv3_2_check: _content_conv3_2_check
+    content_conv3_2_weight: _content_conv3_2_weight
+    content_conv3_3_check: _content_conv3_3_check
+    content_conv3_3_weight: _content_conv3_3_weight
+    content_pool3_check: _content_pool3_check
+    content_pool3_weight: _content_pool3_weight
+    content_conv4_1_check: _content_conv4_1_check
+    content_conv4_1_weight: _content_conv4_1_weight
+    content_conv4_2_check: _content_conv4_2_check
+    content_conv4_2_weight: _content_conv4_2_weight
+    content_conv4_3_check: _content_conv4_3_check
+    content_conv4_3_weight: _content_conv4_3_weight
+    content_pool4_check: _content_pool4_check
+    content_pool4_weight: _content_pool4_weight
+    content_conv5_1_check: _content_conv5_1_check
+    content_conv5_1_weight: _content_conv5_1_weight
+    content_conv5_2_check: _content_conv5_2_check
+    content_conv5_2_weight: _content_conv5_2_weight
+    content_conv5_3_check: _content_conv5_3_check
+    content_conv5_3_weight: _content_conv5_3_weight
+    content_pool5_check: _content_pool5_check
+    content_pool5_weight: _content_pool5_weight
+    style_conv1_1_check: _style_conv1_1_check
+    style_conv1_1_weight: _style_conv1_1_weight
+    style_conv1_2_check: _style_conv1_2_check
+    style_conv1_2_weight: _style_conv1_2_weight
+    style_pool1_check: _style_pool1_check
+    style_pool1_weight: _style_pool1_weight
+    style_conv2_1_check: _style_conv2_1_check
+    style_conv2_1_weight: _style_conv2_1_weight
+    style_conv2_2_check: _style_conv2_2_check
+    style_conv2_2_weight: _style_conv2_2_weight
+    style_pool2_check: _style_pool2_check
+    style_pool2_weight: _style_pool2_weight
+    style_conv3_1_check: _style_conv3_1_check
+    style_conv3_1_weight: _style_conv3_1_weight
+    style_conv3_2_check: _style_conv3_2_check
+    style_conv3_2_weight: _style_conv3_2_weight
+    style_conv3_3_check: _style_conv3_3_check
+    style_conv3_3_weight: _style_conv3_3_weight
+    style_pool3_check: _style_pool3_check
+    style_pool3_weight: _style_pool3_weight
+    style_conv4_1_check: _style_conv4_1_check
+    style_conv4_1_weight: _style_conv4_1_weight
+    style_conv4_2_check: _style_conv4_2_check
+    style_conv4_2_weight: _style_conv4_2_weight
+    style_conv4_3_check: _style_conv4_3_check
+    style_conv4_3_weight: _style_conv4_3_weight
+    style_pool4_check: _style_pool4_check
+    style_pool4_weight: _style_pool4_weight
+    style_conv5_1_check: _style_conv5_1_check
+    style_conv5_1_weight: _style_conv5_1_weight
+    style_conv5_2_check: _style_conv5_2_check
+    style_conv5_2_weight: _style_conv5_2_weight
+    style_conv5_3_check: _style_conv5_3_check
+    style_conv5_3_weight: _style_conv5_3_weight
+    style_pool5_check: _style_pool5_check
+    style_pool5_weight: _style_pool5_weight
+    ActionBar:
+        top: root.height
+        ActionView:
+            use_separator: True
+            ActionPrevious:
+                title: 'ImageMix'
+                on_release: root.parent.current = 'config_screen'
+    RelativeLayout:
+        size_hint: (.07, .07)
+        pos_hint: {'x': .025, 'top': .61}
+        Button:
+            text: 'Next'
+            on_press: root.parent.cycle_config('faster_content_next', _alpha.text, _content_conv1_1_check.active, _content_conv1_1_weight.text, _content_conv1_2_check.active, _content_conv1_2_weight.text, _content_pool1_check.active, _content_pool1_weight.text, _content_conv2_1_check.active, _content_conv2_1_weight.text, _content_conv2_2_check.active, _content_conv2_2_weight.text, _content_pool2_check.active, _content_pool2_weight.text, _content_conv3_1_check.active, _content_conv3_1_weight.text, _content_conv3_2_check.active, _content_conv3_2_weight.text, _content_conv3_3_check.active, _content_conv3_3_weight.text, _content_pool3_check.active, _content_pool3_weight.text, _content_conv4_1_check.active, _content_conv4_1_weight.text, _content_conv4_2_check.active, _content_conv4_2_weight.text, _content_conv4_3_check.active, _content_conv4_3_weight.text, _content_pool4_check.active, _content_pool4_weight.text, _content_conv5_1_check.active, _content_conv5_1_weight.text, _content_conv5_2_check.active, _content_conv5_2_weight.text, _content_conv5_3_check.active, _content_conv5_3_weight.text, _content_pool5_check.active, _content_pool5_weight.text)
+    RelativeLayout:
+        size_hint: (.07, .07)
+        pos_hint: {'x': .025, 'top': .52}
+        Button:
+            text: 'Prev'
+            on_press: root.parent.cycle_config('faster_content_prev', _alpha.text, _content_conv1_1_check.active, _content_conv1_1_weight.text, _content_conv1_2_check.active, _content_conv1_2_weight.text, _content_pool1_check.active, _content_pool1_weight.text, _content_conv2_1_check.active, _content_conv2_1_weight.text, _content_conv2_2_check.active, _content_conv2_2_weight.text, _content_pool2_check.active, _content_pool2_weight.text, _content_conv3_1_check.active, _content_conv3_1_weight.text, _content_conv3_2_check.active, _content_conv3_2_weight.text, _content_conv3_3_check.active, _content_conv3_3_weight.text, _content_pool3_check.active, _content_pool3_weight.text, _content_conv4_1_check.active, _content_conv4_1_weight.text, _content_conv4_2_check.active, _content_conv4_2_weight.text, _content_conv4_3_check.active, _content_conv4_3_weight.text, _content_pool4_check.active, _content_pool4_weight.text, _content_conv5_1_check.active, _content_conv5_1_weight.text, _content_conv5_2_check.active, _content_conv5_2_weight.text, _content_conv5_3_check.active, _content_conv5_3_weight.text, _content_pool5_check.active, _content_pool5_weight.text)
+    RelativeLayout:
+        size_hint: (.07, .1)
+        pos_hint: {'x': .025, 'top': .43}
+        GridLayout:
+            cols: 1
+            Label:
+                text: 'Emphasis'
+            TextInput:
+                id: _alpha
+                text: '0.0'
+    RelativeLayout:
+        size_hint: (.07, .07)
+        pos_hint: {'right': .98, 'top': .61}
+        Button:
+            text: 'Next'
+            on_press: root.parent.cycle_config('faster_style_next', _beta.text, _style_conv1_1_check.active, _style_conv1_1_weight.text, _style_conv1_2_check.active, _style_conv1_2_weight.text, _style_pool1_check.active, _style_pool1_weight.text, _style_conv2_1_check.active, _style_conv2_1_weight.text, _style_conv2_2_check.active, _style_conv2_2_weight.text, _style_pool2_check.active, _style_pool2_weight.text, _style_conv3_1_check.active, _style_conv3_1_weight.text, _style_conv3_2_check.active, _style_conv3_2_weight.text, _style_conv3_3_check.active, _style_conv3_3_weight.text, _style_pool3_check.active, _style_pool3_weight.text, _style_conv4_1_check.active, _style_conv4_1_weight.text, _style_conv4_2_check.active, _style_conv4_2_weight.text, _style_conv4_3_check.active, _style_conv4_3_weight.text, _style_pool4_check.active, _style_pool4_weight.text, _style_conv5_1_check.active, _style_conv5_1_weight.text, _style_conv5_2_check.active, _style_conv5_2_weight.text, _style_conv5_3_check.active, _style_conv5_3_weight.text, _style_pool5_check.active, _style_pool5_weight.text)
+    RelativeLayout:
+        size_hint: (.07, .07)
+        pos_hint: {'right': .98, 'top': .52}
+        Button:
+            text: 'Prev'
+            on_press: root.parent.cycle_config('faster_style_prev', _beta.text, _style_conv1_1_check.active, _style_conv1_1_weight.text, _style_conv1_2_check.active, _style_conv1_2_weight.text, _style_pool1_check.active, _style_pool1_weight.text, _style_conv2_1_check.active, _style_conv2_1_weight.text, _style_conv2_2_check.active, _style_conv2_2_weight.text, _style_pool2_check.active, _style_pool2_weight.text, _style_conv3_1_check.active, _style_conv3_1_weight.text, _style_conv3_2_check.active, _style_conv3_2_weight.text, _style_conv3_3_check.active, _style_conv3_3_weight.text, _style_pool3_check.active, _style_pool3_weight.text, _style_conv4_1_check.active, _style_conv4_1_weight.text, _style_conv4_2_check.active, _style_conv4_2_weight.text, _style_conv4_3_check.active, _style_conv4_3_weight.text, _style_pool4_check.active, _style_pool4_weight.text, _style_conv5_1_check.active, _style_conv5_1_weight.text, _style_conv5_2_check.active, _style_conv5_2_weight.text, _style_conv5_3_check.active, _style_conv5_3_weight.text, _style_pool5_check.active, _style_pool5_weight.text)
+    RelativeLayout:
+        size_hint: (.07, .1)
+        pos_hint: {'right': .98, 'top': .43}
+        GridLayout:
+            cols: 1
+            Label:
+                text: 'Emphasis'
+            TextInput:
+                id: _beta
+                text: '0.0'   
+    RelativeLayout:
+        size_hint: (.9, .92)
+        pos_hint: {'right': .9, 'top': .92}
+        RelativeLayout:
+            size_hint: (.45, .9)
+            pos_hint: {'x' : .09, 'top' : 1}
+            RelativeLayout:
+                size_hint: (1, .05)
+                pos_hint: {'x' : 0, 'top' : 1}
+                Label:
+                    id: _content_file
+                    text: 'Content Layers'
+            RelativeLayout:
+                size_hint: (1, .95)
+                pos_hint: {'x' : 0, 'top' : .95}
+                GridLayout:
+                    cols: 3
+                    BoxLayout:
+                        orientation: 'vertical'
+                        Label:
+                            text: 'conv1_1'
+                        Label:
+                            text: 'conv1_2'
+                        Label:
+                            text: 'pool1'
+                        Label:
+                            text: 'conv2_1'
+                        Label:
+                            text: 'conv2_2'
+                        Label:
+                            text: 'pool2'
+                        Label:
+                            text: 'conv3_1'
+                        Label:
+                            text: 'conv3_2'
+                        Label:
+                            text: 'conv3_3'
+                        Label:
+                            text: 'pool3'
+                        Label:
+                            text: 'conv4_1'
+                        Label:
+                            text: 'conv4_2'
+                        Label:
+                            text: 'conv4_3'
+                        Label:
+                            text: 'pool4'
+                        Label:
+                            text: 'conv5_1'
+                        Label:
+                            text: 'conv5_2'
+                        Label:
+                            text: 'conv5_3'
+                        Label:
+                            text: 'pool5'
+                    BoxLayout:
+                        orientation: 'vertical'
+                        CheckBox:
+                            id: _content_conv1_1_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv1_2_check
+                            active: False
+                        CheckBox:
+                            id: _content_pool1_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv2_1_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv2_2_check
+                            active: False
+                        CheckBox:
+                            id: _content_pool2_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv3_1_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv3_2_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv3_3_check
+                            active: False
+                        CheckBox:
+                            id: _content_pool3_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv4_1_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv4_2_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv4_3_check
+                            active: False
+                        CheckBox:
+                            id: _content_pool4_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv5_1_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv5_2_check
+                            active: False
+                        CheckBox:
+                            id: _content_conv5_3_check
+                            active: False
+                        CheckBox:
+                            id: _content_pool5_check
+                            active: False
+                    BoxLayout:
+                        orientation: 'vertical'
+                        TextInput:
+                            id: _content_conv1_1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv1_2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_pool1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv2_1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv2_2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_pool2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv3_1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv3_2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv3_3_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_pool3_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv4_1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv4_2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv4_3_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_pool4_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv5_1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv5_2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_conv5_3_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _content_pool5_weight
+                            text: '0.0'
+        RelativeLayout:
+            size_hint: (.45, .9)
+            pos_hint: {'x' : .54, 'top' : 1}
+            RelativeLayout:
+                size_hint: (1, .05)
+                pos_hint: {'x' : 0, 'top' : 1}
+                Label:
+                    id: _style_file
+                    text: 'Style Layers'
+            RelativeLayout:
+                size_hint: (1, .95)
+                pos_hint: {'x' : 0, 'top' : .95}
+                GridLayout:
+                    cols: 3
+                    BoxLayout:
+                        orientation: 'vertical'
+                        Label:
+                            text: 'conv1_1'
+                        Label:
+                            text: 'conv1_2'
+                        Label:
+                            text: 'pool1'
+                        Label:
+                            text: 'conv2_1'
+                        Label:
+                            text: 'conv2_2'
+                        Label:
+                            text: 'pool2'
+                        Label:
+                            text: 'conv3_1'
+                        Label:
+                            text: 'conv3_2'
+                        Label:
+                            text: 'conv3_3'
+                        Label:
+                            text: 'pool3'
+                        Label:
+                            text: 'conv4_1'
+                        Label:
+                            text: 'conv4_2'
+                        Label:
+                            text: 'conv4_3'
+                        Label:
+                            text: 'pool4'
+                        Label:
+                            text: 'conv5_1'
+                        Label:
+                            text: 'conv5_2'
+                        Label:
+                            text: 'conv5_3'
+                        Label:
+                            text: 'pool5'
+                    BoxLayout:
+                        orientation: 'vertical'
+                        CheckBox:
+                            id: _style_conv1_1_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv1_2_check
+                            active: False
+                        CheckBox:
+                            id: _style_pool1_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv2_1_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv2_2_check
+                            active: False
+                        CheckBox:
+                            id: _style_pool2_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv3_1_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv3_2_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv3_3_check
+                            active: False
+                        CheckBox:
+                            id: _style_pool3_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv4_1_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv4_2_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv4_3_check
+                            active: False
+                        CheckBox:
+                            id: _style_pool4_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv5_1_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv5_2_check
+                            active: False
+                        CheckBox:
+                            id: _style_conv5_3_check
+                            active: False
+                        CheckBox:
+                            id: _style_pool5_check
+                            active: False
+                    BoxLayout:
+                        orientation: 'vertical'
+                        TextInput:
+                            id: _style_conv1_1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv1_2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_pool1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv2_1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv2_2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_pool2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv3_1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv3_2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv3_3_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_pool3_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv4_1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv4_2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv4_3_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_pool4_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv5_1_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv5_2_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_conv5_3_weight
+                            text: '0.0'
+                        TextInput:
+                            id: _style_pool5_weight
+                            text: '0.0'
+    RelativeLayout:
+        size_hint: (.1, .06)
+        pos_hint: {'x': .45, 'y': .015}
+        Button:
+            text: 'Accept'
+            on_press: root.parent.current = 'config_screen'; root.parent.accept_faster_config_button(_alpha.text, _content_conv1_1_check.active, _content_conv1_1_weight.text, _content_conv1_2_check.active, _content_conv1_2_weight.text, _content_pool1_check.active, _content_pool1_weight.text, _content_conv2_1_check.active, _content_conv2_1_weight.text, _content_conv2_2_check.active, _content_conv2_2_weight.text, _content_pool2_check.active, _content_pool2_weight.text, _content_conv3_1_check.active, _content_conv3_1_weight.text, _content_conv3_2_check.active, _content_conv3_2_weight.text, _content_conv3_3_check.active, _content_conv3_3_weight.text, _content_pool3_check.active, _content_pool3_weight.text, _content_conv4_1_check.active, _content_conv4_1_weight.text, _content_conv4_2_check.active, _content_conv4_2_weight.text, _content_conv4_3_check.active, _content_conv4_3_weight.text, _content_pool4_check.active, _content_pool4_weight.text, _content_conv5_1_check.active, _content_conv5_1_weight.text, _content_conv5_2_check.active, _content_conv5_2_weight.text, _content_conv5_3_check.active, _content_conv5_3_weight.text, _content_pool5_check.active, _content_pool5_weight.text, _beta.text, _style_conv1_1_check.active, _style_conv1_1_weight.text, _style_conv1_2_check.active, _style_conv1_2_weight.text, _style_pool1_check.active, _style_pool1_weight.text, _style_conv2_1_check.active, _style_conv2_1_weight.text, _style_conv2_2_check.active, _style_conv2_2_weight.text, _style_pool2_check.active, _style_pool2_weight.text, _style_conv3_1_check.active, _style_conv3_1_weight.text, _style_conv3_2_check.active, _style_conv3_2_weight.text, _style_conv3_3_check.active, _style_conv3_3_weight.text, _style_pool3_check.active, _style_pool3_weight.text, _style_conv4_1_check.active, _style_conv4_1_weight.text, _style_conv4_2_check.active, _style_conv4_2_weight.text, _style_conv4_3_check.active, _style_conv4_3_weight.text, _style_pool4_check.active, _style_pool4_weight.text, _style_conv5_1_check.active, _style_conv5_1_weight.text, _style_conv5_2_check.active, _style_conv5_2_weight.text, _style_conv5_3_check.active, _style_conv5_3_weight.text, _style_pool5_check.active, _style_pool5_weight.text); 
+
